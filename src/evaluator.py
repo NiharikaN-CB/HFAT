@@ -1,5 +1,8 @@
 import torch
 import torch.nn.functional as F
+import matplotlib.pyplot as plt
+import pandas as pd
+
 from src.data_loader import get_cifar10_loaders
 from src.models import SmallCNN
 
@@ -131,6 +134,43 @@ def run_evaluation():
 
     print(f"HFAT Clean Accuracy: {student_clean:.2f}%")
     print(f"HFAT Robust Accuracy (PGD-20): {student_robust:.2f}%")
+
+    # -------------------------------
+    # RESULTS TABLE
+    # -------------------------------
+    results = {
+        "Model": ["Teacher", "HFAT Student"],
+        "Clean Accuracy (%)": [teacher_clean, student_clean],
+        "Robust Accuracy (PGD-20) (%)": [teacher_robust, student_robust]
+    }
+
+    df = pd.DataFrame(results)
+
+    print("\nResults Table:")
+    print(df.to_string(index=False))
+
+    # -------------------------------
+    # GRAPH
+    # -------------------------------
+    labels = ["Teacher", "HFAT Student"]
+    clean = [teacher_clean, student_clean]
+    robust = [teacher_robust, student_robust]
+
+    x = range(len(labels))
+
+    plt.figure(figsize=(8,5))
+
+    plt.bar(x, clean, width=0.4, label="Clean Accuracy")
+    plt.bar([i + 0.4 for i in x], robust, width=0.4, label="Robust Accuracy (PGD-20)")
+
+    plt.xticks([i + 0.2 for i in x], labels)
+    plt.ylabel("Accuracy (%)")
+    plt.title("Teacher vs HFAT Student Performance")
+
+    plt.legend()
+    plt.tight_layout()
+
+    plt.show()
 
 
 if __name__ == "__main__":
